@@ -32,7 +32,7 @@ pdf_to_speech(
     pages=(0, 10),                # first 10 pages (0-indexed, stop exclusive)
     voice="af_heart",             # see voice list below
     speed=1.0,                    # playback speed multiplier
-    on_progress=lambda i, n: print(f"Chunk {i+1}/{n}"),
+    verbose=2,                    # 0=silent, 1=progress+ETA, 2=details, 3=debug
 )
 ```
 
@@ -53,6 +53,7 @@ python run.py
 | `speed` | `1.0` | Speech speed multiplier |
 | `pages` | `None` (all) | Page range: `(start, stop)` tuple, `range`, or `None` |
 | `max_chars_per_chunk` | `500` | Max characters per TTS chunk |
+| `verbose` | `1` | Verbosity: `0` silent, `1` progress+ETA, `2` details, `3` debug |
 | `on_progress` | `None` | Callback `(chunk_index, total_chunks)` |
 
 ## Voices
