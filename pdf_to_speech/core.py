@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import logging
 import os
 import re
+import time
 from pathlib import Path
 from typing import Callable
 
@@ -13,8 +13,6 @@ from scipy.io import wavfile
 
 from .extract import extract_text
 from .tts import DEFAULT_LANG, DEFAULT_VOICE, SAMPLE_RATE, load_pipeline, synthesise
-
-log = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +62,21 @@ def _silence(seconds: float = 0.3) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------------
+# ETA formatting
+# ---------------------------------------------------------------------------
+
+def _fmt_duration(seconds: float) -> str:
+    """Format a duration in seconds as a human-readable string."""
+    if seconds < 60:
+        return f"{seconds:.0f}s"
+    m, s = divmod(int(seconds), 60)
+    if m < 60:
+        return f"{m}m {s:02d}s"
+    h, m = divmod(m, 60)
+    return f"{h}h {m:02d}m"
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
@@ -76,6 +89,7 @@ def pdf_to_speech(
     speed: float = 1.0,
     pages: range | tuple[int, int] | None = None,
     max_chars_per_chunk: int = 500,
+    verbose: int = 1,
     on_progress: Callable[[int, int], None] | None = None,
 ) -> Path:
     """Convert a PDF document to a speech WAV file.
@@ -102,6 +116,9 @@ def pdf_to_speech(
         stop exclusive), or *None* for all pages.
     max_chars_per_chunk:
         Maximum characters per text chunk sent to the TTS model.
+    verbose:
+        Verbosity level.  ``0`` = silent, ``1`` = chunk progress with ETA,
+        ``2`` = extraction and model info, ``3`` = per-chunk text previews.
     on_progress:
         Optional callback ``(current_chunk_index, total_chunks)`` fired
         after each chunk is synthesised.
@@ -114,24 +131,35 @@ def pdf_to_speech(
     output_path = Path(output_path)
 
     # 1. Extract text
-    log.info("Extracting text from %s", pdf_path)
+    if verbose >= 2:
+        print(f"Extracting text from {pdf_path}")
     text = extract_text(pdf_path, pages=pages)
     if not text.strip():
         raise ValueError("No text could be extracted from the PDF.")
 
     # 2. Chunk
     chunks = chunk_text(text, max_chars=max_chars_per_chunk)
-    log.info("Split text into %d chunks", len(chunks))
+    if verbose >= 2:
+        total_chars = sum(len(c) for c in chunks)
+        print(f"Extracted {total_chars:,} characters — {len(chunks)} chunks")
 
     # 3. Load pipeline
+    if verbose >= 2:
+        print(f"Loading Kokoro pipeline (lang={lang_code}, voice={voice})")
     pipeline = load_pipeline(lang_code=lang_code)
+    if verbose >= 2:
+        print("Pipeline ready")
 
     # 4. Synthesise each chunk
     audio_parts: list[np.ndarray] = []
     silence = _silence(0.3)
+    t_start = time.monotonic()
 
     for idx, chunk in enumerate(chunks):
-        log.info("Synthesising chunk %d/%d (%d chars)", idx + 1, len(chunks), len(chunk))
+        if verbose >= 3:
+            preview = chunk[:80] + ("…" if len(chunk) > 80 else "")
+            print(f"  [{idx+1}/{len(chunks)}] ({len(chunk)} chars) {preview}")
+
         audio = synthesise(chunk, pipeline, voice=voice, speed=speed)
         if audio_parts:
             audio_parts.append(silence)
@@ -140,10 +168,23 @@ def pdf_to_speech(
         if on_progress is not None:
             on_progress(idx, len(chunks))
 
+        if verbose >= 1:
+            done = idx + 1
+            elapsed = time.monotonic() - t_start
+            per_chunk = elapsed / done
+            remaining = per_chunk * (len(chunks) - done)
+            eta = f"ETA {_fmt_duration(remaining)}" if done < len(chunks) else "done"
+            print(f"  Chunk {done}/{len(chunks)} — {eta}")
+
     # 5. Concatenate and save
     full_audio = np.concatenate(audio_parts)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     wavfile.write(str(output_path), SAMPLE_RATE, full_audio)
-    log.info("Saved %s (%.1f s)", output_path, len(full_audio) / SAMPLE_RATE)
+
+    duration = len(full_audio) / SAMPLE_RATE
+    elapsed = time.monotonic() - t_start
+    if verbose >= 1:
+        print(f"Saved {output_path} ({_fmt_duration(duration)} audio, "
+              f"took {_fmt_duration(elapsed)})")
 
     return output_path.resolve()

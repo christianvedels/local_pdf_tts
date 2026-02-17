@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import numpy as np
-
-log = logging.getLogger(__name__)
 
 SAMPLE_RATE = 24_000
 
@@ -35,9 +32,7 @@ def load_pipeline(lang_code: str = DEFAULT_LANG) -> Any:
     """
     from kokoro import KPipeline
 
-    log.info("Loading Kokoro pipeline (lang=%s) …", lang_code)
     pipeline = KPipeline(lang_code=lang_code)
-    log.info("Kokoro pipeline ready")
     return pipeline
 
 
