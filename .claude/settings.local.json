@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(where:*)",
+      "Bash(python3:*)",
+      "Bash(\"C:\\\\ProgramData\\\\anaconda3\\\\envs\\\\pdf_to_speech\\\\python.exe\" -c \"from transformers import Qwen2TokenizerFast; print\\(Qwen2TokenizerFast.__module__\\)\")"
+    ]
+  }
+}
