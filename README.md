@@ -7,7 +7,7 @@ Convert academic papers (PDFs) to speech audio for proofreading by ear. Runs loc
 1. **Extract** text from a PDF using PyMuPDF, with cleanup that handles hyphenated line breaks, paragraph detection, and filtering of tables/figures/page numbers.
 2. **Chunk** the text on sentence boundaries.
 3. **Synthesise** each chunk using [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M) (82M parameter TTS model, Apache 2.0 license).
-4. **Concatenate** the audio with short silence gaps and save as a WAV file.
+4. **Concatenate** the audio with short silence gaps and save as WAV or MP3.
 
 Kokoro runs comfortably on CPU and fits in under 1 GB of VRAM if a GPU is available.
 
@@ -16,6 +16,7 @@ Kokoro runs comfortably on CPU and fits in under 1 GB of VRAM if a GPU is availa
 ```bash
 conda create -n pdf_tts python=3.11 -y
 conda activate pdf_tts
+conda install ffmpeg -y          # needed for MP3 export
 pip install -r requirements.txt
 ```
 
@@ -28,7 +29,7 @@ from pdf_to_speech import pdf_to_speech
 
 pdf_to_speech(
     "paper.pdf",
-    "paper.wav",
+    "paper.mp3",                    # .wav or .mp3 (auto-detected)
     pages=(0, 10),                # first 10 pages (0-indexed, stop exclusive)
     voice="af_heart",             # see voice list below
     speed=1.0,                    # playback speed multiplier
@@ -47,7 +48,7 @@ python run.py
 | Parameter | Default | Description |
 |---|---|---|
 | `pdf_path` | *(required)* | Path to the input PDF |
-| `output_path` | *(required)* | Destination `.wav` file |
+| `output_path` | *(required)* | Destination `.wav` or `.mp3` file |
 | `voice` | `"af_heart"` | Kokoro voice identifier |
 | `lang_code` | `"a"` | Language code (see below) |
 | `speed` | `1.0` | Speech speed multiplier |

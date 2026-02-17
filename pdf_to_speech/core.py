@@ -1,9 +1,10 @@
-"""Core orchestration: PDF -> text chunks -> TTS -> concatenated WAV."""
+"""Core orchestration: PDF -> text chunks -> TTS -> concatenated audio."""
 
 from __future__ import annotations
 
 import os
 import re
+import tempfile
 import time
 from pathlib import Path
 from typing import Callable
@@ -92,14 +93,15 @@ def pdf_to_speech(
     verbose: int = 1,
     on_progress: Callable[[int, int], None] | None = None,
 ) -> Path:
-    """Convert a PDF document to a speech WAV file.
+    """Convert a PDF document to a speech audio file.
 
     Parameters
     ----------
     pdf_path:
         Path to the input PDF.
     output_path:
-        Destination path for the output ``.wav`` file.
+        Destination path for the output audio file.  The format is
+        auto-detected from the extension: ``.wav`` or ``.mp3``.
     voice:
         Kokoro voice identifier.  American English voices include
         ``"af_heart"``, ``"af_bella"``, ``"am_adam"``, ``"am_michael"``, etc.
@@ -179,7 +181,20 @@ def pdf_to_speech(
     # 5. Concatenate and save
     full_audio = np.concatenate(audio_parts)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    wavfile.write(str(output_path), SAMPLE_RATE, full_audio)
+
+    if output_path.suffix.lower() == ".mp3":
+        from pydub import AudioSegment
+
+        tmp_fd, tmp_path = tempfile.mkstemp(suffix=".wav")
+        os.close(tmp_fd)
+        try:
+            wavfile.write(tmp_path, SAMPLE_RATE, full_audio)
+            audio_seg = AudioSegment.from_wav(tmp_path)
+            audio_seg.export(str(output_path), format="mp3")
+        finally:
+            os.unlink(tmp_path)
+    else:
+        wavfile.write(str(output_path), SAMPLE_RATE, full_audio)
 
     duration = len(full_audio) / SAMPLE_RATE
     elapsed = time.monotonic() - t_start
