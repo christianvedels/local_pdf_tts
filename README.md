@@ -93,20 +93,17 @@ The extractor is designed for academic papers and handles:
 
 ## Tests
 
-The test suite uses pytest. A toy PDF fixture (`tests/fixtures/toydata.tex`) is included as a small academic paper you can compile with `pdflatex`.
+The test suite uses pytest. A compiled `toydata.pdf` fixture is included; the source `tests/fixtures/toydata.tex` is there if you need to regenerate it with `pdflatex`.
 
 ```bash
-# compile the test fixture
-cd tests/fixtures && pdflatex toydata.tex && cd ../..
-
-# run fast tests (chunking, extraction helpers, formatting)
+# run fast tests (chunking, extraction, formatting)
 pytest
 
 # run full suite including TTS integration tests (needs Kokoro)
 pytest -m slow
 ```
 
-Fast tests cover text chunking, line joining, hyphenation, noise filtering, paragraph detection, and duration formatting. Integration tests (marked `slow`, skipped by default) exercise the full pipeline: audio synthesis, WAV/MP3 output, progress callbacks, and error handling.
+Fast tests cover text chunking, line joining, hyphenation, noise filtering, paragraph detection, PDF extraction, and duration formatting. Integration tests (marked `slow`, skipped by default) exercise the full pipeline: audio synthesis, WAV/MP3 output, progress callbacks, and error handling.
 
 ## Module structure
 
