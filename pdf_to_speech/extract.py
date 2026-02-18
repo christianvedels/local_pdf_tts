@@ -77,23 +77,29 @@ def _remove_short_runs(paragraphs: list[str]) -> list[str]:
     A run of >= ``_RUN_MIN`` paragraphs that are all shorter than
     ``_SHORT_THRESHOLD`` characters is dropped entirely.  This catches
     table cell fragments that structural table detection missed.
+
+    The very first run is always kept — papers start with short header
+    material (title, authors, date) that should not be filtered.
     """
     n = len(paragraphs)
     keep = [True] * n
+    first_run = True
 
     run_start = 0
     while run_start < n:
         # Skip paragraphs that are long enough.
         if len(paragraphs[run_start]) >= _SHORT_THRESHOLD:
             run_start += 1
+            first_run = False
             continue
         # Found a short paragraph — see how long the run is.
         run_end = run_start + 1
         while run_end < n and len(paragraphs[run_end]) < _SHORT_THRESHOLD:
             run_end += 1
-        if run_end - run_start >= _RUN_MIN:
+        if run_end - run_start >= _RUN_MIN and not first_run:
             for i in range(run_start, run_end):
                 keep[i] = False
+        first_run = False
         run_start = run_end
 
     return [p for p, k in zip(paragraphs, keep) if k]

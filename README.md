@@ -91,6 +91,23 @@ The extractor is designed for academic papers and handles:
 - Filtering out tables (structural detection + short-fragment run detection)
 - Filtering out page numbers and diagram label fragments
 
+## Tests
+
+The test suite uses pytest. A toy PDF fixture (`tests/fixtures/toydata.tex`) is included as a small academic paper you can compile with `pdflatex`.
+
+```bash
+# compile the test fixture
+cd tests/fixtures && pdflatex toydata.tex && cd ../..
+
+# run fast tests (chunking, extraction helpers, formatting)
+pytest
+
+# run full suite including TTS integration tests (needs Kokoro)
+pytest -m slow
+```
+
+Fast tests cover text chunking, line joining, hyphenation, noise filtering, paragraph detection, and duration formatting. Integration tests (marked `slow`, skipped by default) exercise the full pipeline: audio synthesis, WAV/MP3 output, progress callbacks, and error handling.
+
 ## Module structure
 
 ```
@@ -99,6 +116,13 @@ pdf_to_speech/
     extract.py    # PDF text extraction and cleanup
     tts.py        # Kokoro TTS pipeline wrapper
     core.py       # orchestration: extract -> chunk -> synthesise -> save
+tests/
+    fixtures/
+        toydata.tex   # toy academic paper for testing
+    test_chunking.py  # text chunking logic
+    test_helpers.py   # silence generation, duration formatting
+    test_extract.py   # PDF extraction and text normalisation
+    test_pipeline.py  # full TTS pipeline (marked slow)
 ```
 
 ## License

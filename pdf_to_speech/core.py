@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import io
 import os
 import re
-import tempfile
+import sys
 import time
 from pathlib import Path
 from typing import Callable
@@ -184,15 +185,19 @@ def pdf_to_speech(
 
     if output_path.suffix.lower() == ".mp3":
         from pydub import AudioSegment
+        import shutil
 
-        tmp_fd, tmp_path = tempfile.mkstemp(suffix=".wav")
-        os.close(tmp_fd)
-        try:
-            wavfile.write(tmp_path, SAMPLE_RATE, full_audio)
-            audio_seg = AudioSegment.from_wav(tmp_path)
-            audio_seg.export(str(output_path), format="mp3")
-        finally:
-            os.unlink(tmp_path)
+        # Help pydub find ffmpeg inside a conda env on Windows.
+        if shutil.which("ffmpeg") is None:
+            _conda_bin = Path(sys.prefix) / "Library" / "bin"
+            if (_conda_bin / "ffmpeg.exe").exists():
+                os.environ["PATH"] = str(_conda_bin) + os.pathsep + os.environ.get("PATH", "")
+
+        buf = io.BytesIO()
+        wavfile.write(buf, SAMPLE_RATE, full_audio)
+        buf.seek(0)
+        audio_seg = AudioSegment.from_wav(buf)
+        audio_seg.export(str(output_path), format="mp3")
     else:
         wavfile.write(str(output_path), SAMPLE_RATE, full_audio)
 

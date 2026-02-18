@@ -4,3 +4,4 @@ PyMuPDF
 scipy
 numpy
 pydub
+pytest

@@ -1,1 +1,5 @@
-/pdf_to_speech/__pycache__
+__pycache__/
+tests/fixtures/toydata.pdf
+tests/fixtures/toydata.aux
+tests/fixtures/toydata.log
+tests/fixtures/toydata.out

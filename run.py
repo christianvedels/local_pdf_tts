@@ -3,10 +3,9 @@
 from pdf_to_speech import pdf_to_speech
 
 pdf_to_speech(
-    "../Sandbox/Breaking_the_HISCO_barrier.pdf",
-    "../Sandbox/output.mp3",
-    # pages=(0, 4),
+    "tests/fixtures/toydata.pdf",
+    "output.mp3",
     voice="af_heart",
 )
 
-print("Done — saved to ../Sandbox/output.mp3")
+print("Done — saved to output.mp3")
