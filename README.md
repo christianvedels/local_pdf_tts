@@ -1,6 +1,10 @@
 # local_pdf_tts
 
+> **Note:** This project was built almost entirely by accepting changes suggested by [Claude Code](https://claude.ai/claude-code). It is not my own work in the traditional sense — I gave minimum feedback, and most of it was written and tested automatically.
+
 Convert academic papers (PDFs) to speech audio for proofreading by ear. Runs locally on consumer hardware — no cloud API needed.
+
+> **See [Getting_started.md](Getting_started.md) for a step-by-step setup guide.**
 
 ## How it works
 
@@ -10,38 +14,6 @@ Convert academic papers (PDFs) to speech audio for proofreading by ear. Runs loc
 4. **Concatenate** the audio with short silence gaps and save as WAV or MP3.
 
 Kokoro runs comfortably on CPU and fits in under 1 GB of VRAM if a GPU is available.
-
-## Setup
-
-```bash
-conda create -n pdf_tts python=3.11 -y
-conda activate pdf_tts
-conda install ffmpeg -y          # needed for MP3 export
-pip install -r requirements.txt
-```
-
-## Usage
-
-### Python API
-
-```python
-from pdf_to_speech import pdf_to_speech
-
-pdf_to_speech(
-    "paper.pdf",
-    "paper.mp3",                    # .wav or .mp3 (auto-detected)
-    pages=(0, 10),                # first 10 pages (0-indexed, stop exclusive)
-    voice="af_heart",             # see voice list below
-    speed=1.0,                    # playback speed multiplier
-    verbose=2,                    # 0=silent, 1=progress+ETA, 2=details, 3=debug
-)
-```
-
-### Quick test
-
-```bash
-python run.py
-```
 
 ## Parameters
 
@@ -90,37 +62,6 @@ The extractor is designed for academic papers and handles:
 - Preserving paragraph breaks (detected via line-length analysis)
 - Filtering out tables (structural detection + short-fragment run detection)
 - Filtering out page numbers and diagram label fragments
-
-## Tests
-
-The test suite uses pytest. A compiled `toydata.pdf` fixture is included; the source `tests/fixtures/toydata.tex` is there if you need to regenerate it with `pdflatex`.
-
-```bash
-# run fast tests (chunking, extraction, formatting)
-pytest
-
-# run full suite including TTS integration tests (needs Kokoro)
-pytest -m slow
-```
-
-Fast tests cover text chunking, line joining, hyphenation, noise filtering, paragraph detection, PDF extraction, and duration formatting. Integration tests (marked `slow`, skipped by default) exercise the full pipeline: audio synthesis, WAV/MP3 output, progress callbacks, and error handling.
-
-## Module structure
-
-```
-pdf_to_speech/
-    __init__.py   # public API re-exports
-    extract.py    # PDF text extraction and cleanup
-    tts.py        # Kokoro TTS pipeline wrapper
-    core.py       # orchestration: extract -> chunk -> synthesise -> save
-tests/
-    fixtures/
-        toydata.tex   # toy academic paper for testing
-    test_chunking.py  # text chunking logic
-    test_helpers.py   # silence generation, duration formatting
-    test_extract.py   # PDF extraction and text normalisation
-    test_pipeline.py  # full TTS pipeline (marked slow)
-```
 
 ## License
 
