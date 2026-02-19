@@ -1,0 +1,42 @@
+% Appendix for the mock Overleaf project.
+
+\section{Robustness Checks}
+\label{app:robustness}
+
+This appendix presents additional robustness checks for the results
+reported in the main text.  We re-estimate the baseline specification
+using alternative sample restrictions, different measures of educational
+attainment, and an extended set of control variables.
+
+\subsection{Alternative Sample Restrictions}
+
+Table~\ref{tab:robustness} replicates the main findings when we
+restrict the sample to countries with at least twenty years of
+continuous data.  The point estimates remain stable across all three
+estimators, suggesting that sample composition does not drive our
+results.
+
+\begin{table}[h!]
+\centering
+\caption{Robustness: Restricted Sample}
+\label{tab:robustness}
+\begin{tabular}{lccc}
+\toprule
+Restriction & OLS & IV & Fixed Effects \\
+\midrule
+Baseline (42 countries)  & 0.12 & 0.14 & 0.11 \\
+Balanced panel (28 countries) & 0.11 & 0.13 & 0.10 \\
+OECD only (22 countries) & 0.10 & 0.12 & 0.09 \\
+\bottomrule
+\end{tabular}
+
+\textit{Notes:} See notes to Table~\ref{tab:main}.
+\end{table}
+
+\subsection{Alternative Measures of Education}
+
+We also replace average years of schooling with the share of the adult
+population that has completed secondary education.  The qualitative
+conclusions are unchanged: returns remain positive, statistically
+significant, and larger when identified by instrumental variables than
+by OLS.

@@ -1,0 +1,123 @@
+% Mock main LaTeX file for the test Overleaf project.
+% This paper is entirely fictional and was generated as test data.
+
+\documentclass[12pt]{article}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{natbib}
+
+\title{Economic Returns to Education: A Cross-Country Analysis}
+\author{Maria Garcia \and Thomas Schmidt}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\noindent\textbf{Disclaimer:} This paper is entirely fictional and was
+generated as test data for the \texttt{local\_pdf\_tts} project.
+
+\begin{abstract}
+We examine the economic returns to education using panel data from
+42 countries over the period 1990--2020.  Exploiting variation in
+compulsory schooling laws as an instrument for educational attainment,
+we find that an additional year of schooling raises wages by
+approximately 10\% on average.  Returns are higher in high-income
+countries and lower in low-income countries, consistent with
+complementarity between education and physical capital.  Our results
+are robust to alternative sample restrictions and measures of
+educational attainment.
+\end{abstract}
+
+\section{Introduction}
+
+Education is widely regarded as a key driver of economic growth and
+individual prosperity.  Since the seminal work of \citet{mincer1974},
+economists have devoted considerable effort to measuring the private
+return to schooling---the percentage increase in wages associated with
+one additional year of education.
+
+Estimating this return is complicated by the endogeneity of schooling
+decisions.  Individuals who invest more in education may differ from
+those who invest less along dimensions that are correlated with wages
+but unobserved by the researcher.  Failure to account for these
+differences leads ordinary least squares (OLS) estimates to overstate
+or, in some cases, understate the true causal effect.
+
+We address this challenge using variation in compulsory schooling
+laws across countries and over time as an instrument for individual
+educational attainment, following the approach of \citet{card1999}.
+This strategy allows us to identify the local average treatment effect
+of schooling on wages for compliers---individuals whose schooling
+decisions were affected by changes in compulsory education policy.
+
+\section{Data and Methodology}
+
+\subsection{Data Sources}
+
+We combine three publicly available datasets.  Wage and employment
+data come from the International Labour Organization (ILO) harmonised
+microdata covering 42 countries between 1990 and 2020.  Educational
+attainment data are drawn from the Barro-Lee dataset, which provides
+five-year estimates of average years of schooling for 146 countries.
+Information on compulsory schooling laws is taken from a newly
+assembled database compiled by \citet{psacharopoulos2004}.
+
+The final analysis sample consists of 1{,}260 country-year
+observations.  Summary statistics are presented in a supplementary
+table available from the authors upon request.
+
+\subsection{Empirical Strategy}
+
+Our baseline specification is a standard Mincerian earnings equation
+augmented with country and year fixed effects.  We estimate the model
+by OLS, by two-stage least squares (IV) using compulsory schooling
+laws as instruments, and by the within-group (fixed effects) estimator
+that controls for time-invariant individual heterogeneity.
+
+Table~\ref{tab:main} presents the main results.
+
+\input{Tables/table1}
+
+\section{Results}
+
+Countries at higher income levels exhibit substantially larger returns
+to schooling than their lower-income counterparts.  In high-income
+countries the IV estimate stands at 0.14, implying that one additional
+year of schooling raises wages by 14\%.  In low-income countries the
+corresponding figure is only 0.09.  This gradient is consistent with
+the hypothesis that the productivity of education is complementary to
+physical capital, which is more abundant in richer economies.
+
+The gap between OLS and IV estimates is positive but modest: the IV
+coefficient exceeds the OLS coefficient by about 0.02 across all
+country groups.  This pattern is consistent with the presence of
+ability bias that is roughly offset by measurement error in educational
+attainment, a finding in line with the broader literature surveyed by
+\citet{card1999}.
+
+\section{Conclusion}
+
+This paper provides new cross-country evidence on the economic returns
+to schooling.  Using panel data from 42 countries and an instrumental
+variables strategy based on compulsory schooling laws, we estimate that
+an additional year of education raises wages by approximately 10\% on
+average.  Returns vary systematically with the level of economic
+development, being highest in high-income and lowest in low-income
+countries.
+
+Our findings have implications for education policy.  In countries
+where returns are high and educational attainment is low, increasing
+school-leaving ages or investing in secondary education may generate
+substantial wage gains.  Future research should examine whether these
+aggregate patterns conceal important heterogeneity across demographic
+groups and sectors of the economy.
+
+\appendix
+
+\input{appendix}
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}
