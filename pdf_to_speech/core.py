@@ -159,6 +159,7 @@ def pdf_to_speech(
     # Warmup: the first chunk often includes one-time overhead (model/cache).
     # Start ETA timing after the warmup chunk to stabilize early estimates.
     warmup_chunks = 1
+    min_timing_chunks = 3
     t_start: float | None = None
 
     for idx, chunk in enumerate(chunks):
@@ -183,10 +184,17 @@ def pdf_to_speech(
                     t_start = time.monotonic()
                 elapsed = time.monotonic() - t_start
                 effective_done = done - warmup_chunks
-                per_chunk = elapsed / effective_done
-                remaining = per_chunk * (len(chunks) - done)
-                eta = f"ETA {_fmt_duration(remaining)}" if done < len(chunks) else "done"
-                print(f"  Chunk {done}/{len(chunks)} — {eta}")
+                if effective_done < min_timing_chunks:
+                    print(f"  Chunk {done}/{len(chunks)} — ETA calibrating")
+                else:
+                    per_chunk = elapsed / effective_done
+                    remaining = per_chunk * (len(chunks) - done)
+                    eta = (
+                        f"ETA {_fmt_duration(remaining)}"
+                        if done < len(chunks)
+                        else "done"
+                    )
+                    print(f"  Chunk {done}/{len(chunks)} — {eta}")
 
     # 5. Concatenate and save
     full_audio = np.concatenate(audio_parts)
