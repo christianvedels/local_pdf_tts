@@ -156,7 +156,10 @@ def pdf_to_speech(
     # 4. Synthesise each chunk
     audio_parts: list[np.ndarray] = []
     silence = _silence(0.3)
-    t_start = time.monotonic()
+    # Warmup: the first chunk often includes one-time overhead (model/cache).
+    # Start ETA timing after the warmup chunk to stabilize early estimates.
+    warmup_chunks = 1
+    t_start: float | None = None
 
     for idx, chunk in enumerate(chunks):
         if verbose >= 3:
@@ -173,11 +176,17 @@ def pdf_to_speech(
 
         if verbose >= 1:
             done = idx + 1
-            elapsed = time.monotonic() - t_start
-            per_chunk = elapsed / done
-            remaining = per_chunk * (len(chunks) - done)
-            eta = f"ETA {_fmt_duration(remaining)}" if done < len(chunks) else "done"
-            print(f"  Chunk {done}/{len(chunks)} — {eta}")
+            if done <= warmup_chunks:
+                print(f"  Chunk {done}/{len(chunks)} — ETA calibrating")
+            else:
+                if t_start is None:
+                    t_start = time.monotonic()
+                elapsed = time.monotonic() - t_start
+                effective_done = done - warmup_chunks
+                per_chunk = elapsed / effective_done
+                remaining = per_chunk * (len(chunks) - done)
+                eta = f"ETA {_fmt_duration(remaining)}" if done < len(chunks) else "done"
+                print(f"  Chunk {done}/{len(chunks)} — {eta}")
 
     # 5. Concatenate and save
     full_audio = np.concatenate(audio_parts)
@@ -202,6 +211,8 @@ def pdf_to_speech(
         wavfile.write(str(output_path), SAMPLE_RATE, full_audio)
 
     duration = len(full_audio) / SAMPLE_RATE
+    if t_start is None:
+        t_start = time.monotonic()
     elapsed = time.monotonic() - t_start
     if verbose >= 1:
         print(f"Saved {output_path} ({_fmt_duration(duration)} audio, "
