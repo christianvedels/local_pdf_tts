@@ -4,3 +4,4 @@ tests/fixtures/toydata.aux
 tests/fixtures/toydata.log
 tests/fixtures/toydata.out
 .claude
+/.vscode
